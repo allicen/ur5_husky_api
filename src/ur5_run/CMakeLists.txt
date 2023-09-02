@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.2)
-project(ur5_info)
+project(ur5_run)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
@@ -15,14 +15,10 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   sensor_msgs
   std_msgs
-#  settings_custom_lib
-  tf
 )
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
-
-find_package(ur_rtde REQUIRED PATHS "/workspace/src/ur_rtde-v1.5.0/build/ur_rtde")
 
 
 ## Uncomment this if the package has a setup.py. This macro ensures
@@ -55,23 +51,19 @@ find_package(ur_rtde REQUIRED PATHS "/workspace/src/ur_rtde-v1.5.0/build/ur_rtde
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
 ## Generate messages in the 'msg' folder
-add_message_files(
+ add_message_files(
    FILES
-   JointPositions.msg
-   MoveUR5WithGripper.msg
-   RobotState.msg
-   JointVelocities.msg
-   SetJointPositions.msg
-#   Message1.msg
+   GripperInfo.msg
+   GripperAngle.msg
 #   Message2.msg
-)
+ )
 
 ## Generate services in the 'srv' folder
-# add_service_files(
-#   FILES
-#   Service1.srv
-#   Service2.srv
-# )
+ add_service_files(
+   FILES
+   GripperMoveRobot.srv
+   GetGripperState.srv
+ )
 
 ## Generate actions in the 'action' folder
 # add_action_files(
@@ -118,7 +110,7 @@ add_message_files(
 catkin_package(
    CATKIN_DEPENDS message_runtime
 #  INCLUDE_DIRS include
-#  LIBRARIES ur5_info
+#  LIBRARIES ur5_run
 #  CATKIN_DEPENDS cv_bridge image_transport message_generation roscpp rospy sensor_msgs std_msgs
 #  DEPENDS system_lib
 )
@@ -136,7 +128,7 @@ include_directories(
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/tf.cpp
+#   src/${PROJECT_NAME}/ur5_run.cpp
 # )
 
 ## Add cmake target dependencies of the library
@@ -147,7 +139,7 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-add_executable(ur5_info src/ur5_info.cpp)
+# add_executable(${PROJECT_NAME}_node src/ur5_run_node.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -158,17 +150,16 @@ add_executable(ur5_info src/ur5_info.cpp)
 ## Add cmake target dependencies of the executable
 ## same as for the library above
 # add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-add_dependencies(ur5_info ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
 # target_link_libraries(${PROJECT_NAME}_node
 #   ${catkin_LIBRARIES}
 # )
 
-target_link_libraries(ur5_info
-   PRIVATE ur_rtde::rtde
-   ${catkin_LIBRARIES}
-)
+#target_link_libraries(
+#  ${OpenCV_LIBS}
+#  ${catkin_LIBRARIES}
+#)
 
 
 #############
@@ -218,7 +209,7 @@ target_link_libraries(ur5_info
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_ur5_info.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_ur5_run.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()
