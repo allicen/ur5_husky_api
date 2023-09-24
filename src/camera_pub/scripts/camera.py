@@ -53,7 +53,7 @@ class Camera():
     
     def camera_gripper_depth(self, msg):
         try:
-            cv_image = self.cv_bridge.imgmsg_to_cv2(msg, "bgr8")
+            cv_image = self.cv_bridge.imgmsg_to_cv2(msg, "passthrough")
             self.ImageGripperDepth = cv_image
         except CvBridgeError, e:
             rospy.logerr("CvBridge Error: {0}".format(e))
