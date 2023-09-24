@@ -77,6 +77,18 @@ roslaunch gripper_move gripper.launch
 2) С другого компьютера отправлять данные для управления гриппером.
 
 
+**1.3. Отдельное подключение камеры глубины для детектирования объектов**
+
+1) На роботе запустить publisher:
+
+```
+cd /home/administrator/rubleva/ur5_husky_api
+catkin_make
+source devel/setup.bash
+roslaunch camera_pub detect_obj_in_gripper.launch
+```
+
+
 ### 2. Автономное управление роботом UR5
 
 1 терминал
@@ -152,3 +164,13 @@ rostopic pub move_robot_delay_gripper ur5_info/MoveUR5WithGripper "{positions: [
 rostopic pub move_robot_delay_gripper ur5_info/MoveUR5WithGripper "{positions: [position:[1.4775620698928833, -1.3088954130755823, 1.4463391304016113, -2.300877873097555, -1.5800159613238733, 0.00014381069922819734], position:[1.0789810419082642, -0.5552123228656214, 1.9236936569213867, -3.0894487539874476, -1.5335939566241663, 0.0014620755100622773]], delay: [0,0], gripperAngle: 0.0}" --once
 ```
 
+Положение Даниила 
+
+1.59592, -2.8721300000000003, 2.67727, -2.96106, -1.4762199999999996, 0.00031159000000000004
+
+rostopic pub move_robot_delay_gripper ur5_info/MoveUR5WithGripper "{positions: [position:[1.59592, -2.8721300000000003, 2.67727, -2.96106, -1.4762199999999996, 0.00031159000000000004]], delay: [0], gripperAngle: 0.085}" --once
+
+
+================= 24
+rosbag record  /tf /tf_static /realsense_gripper/color/camera_info /realsense_gripper/color/image_raw/compressed /realsense_gripper/aligned_depth_to_color/camera_info /realsense_gripper/aligned_depth_to_color/image_raw /zed_node/left/camera_info /zed_node/left/image_rect_color/compressed /zed_node/depth/camera_info /zed_node/depth/depth_registered /velodyne_points /occupancy_grid_map/grid_map /arm/1/joint_states /gripper_angle
+/gripper/1/joint_states /zed_node/right_raw/image_raw_color/compressed /zed_node/left_raw/image_raw_color/compressed /zed_node/right_raw/camera_info /zed_node/left_raw/camera_info
