@@ -29,7 +29,7 @@ class Camera():
 
         self.pub = rospy.Publisher('/pub/realsense_gripper/color/image_raw', ImageCamera, queue_size=10)
         self.pub_robot = rospy.Publisher('/pub/zed_node/right_raw/image_raw_color/compressed', ImageCamera, queue_size=10)
-        self.pub_gripper_depth = rospy.Publisher('/pub/realsense_gripper/aligned_depth_to_color/image_raw', ImageCamera, queue_size=10)
+        self.pub_gripper_depth = rospy.Publisher('/pub/realsense_gripper/aligned_depth_to_color/image_raw', Image, queue_size=10)
 
         self.rate = rospy.Rate(30)
 
@@ -53,8 +53,7 @@ class Camera():
     
     def camera_gripper_depth(self, msg):
         try:
-            cv_image = self.cv_bridge.imgmsg_to_cv2(msg, "passthrough")
-            self.ImageGripperDepth = cv_image
+            self.ImageGripperDepth = msg
         except CvBridgeError, e:
             rospy.logerr("CvBridge Error: {0}".format(e))
 
@@ -62,7 +61,6 @@ class Camera():
     def spin(self):
         while not rospy.is_shutdown():
             self.rate.sleep()
-            #print(self.ImageRobot)
             if self.ImageRobot is not None:
                 img = self.cv_bridge.cv2_to_imgmsg(self.ImageRobot)
                 _, buffer_img= cv2.imencode('.jpg', self.ImageRobot)
@@ -84,14 +82,7 @@ class Camera():
                 self.pub.publish(self.msg_img)
 
             if self.ImageGripperDepth is not None:
-                img = self.cv_bridge.cv2_to_imgmsg(self.ImageGripperDepth)
-                _, buffer_img= cv2.imencode('.jpg', self.ImageGripperDepth)
-                self.msg_img.data = base64.b64encode(buffer_img).decode("utf-8")
-                self.msg_img.encoding = 'base64'
-                self.msg_img.width = img.width
-                self.msg_img.height = img.height
-
-                self.pub_gripper_depth.publish(self.msg_img)
+                self.pub_gripper_depth.publish(self.ImageGripperDepth)
 
 
     def shutdown(self):
