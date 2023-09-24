@@ -17,7 +17,7 @@ from std_msgs.msg import String
 class Camera():
 
     def __init__(self):
-        rospy.init_node('camera', anonymous=True)
+        rospy.init_node('camera_depth', anonymous=True)
 
         self.rosbag = rospy.get_param("~rosbag")
         self.delay = rospy.get_param("~delay")

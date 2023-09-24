@@ -3,7 +3,7 @@
     <arg name="rosbag" default="false" />
     <arg name="delay" default="0.0" /> <!-- Время задержки для получения данных с камеры (Задержка в секундах) -->
 
-    <node name="camera_node" pkg="ur5_husky_camera" type="camera.py" output="screen">
+    <node name="camera_node" pkg="camera_pub" type="camera_depth_gripper.py" output="screen">
         <param name="rosbag" type="bool" value="$(arg rosbag)"/>
         <param name="delay" type="double" value="$(arg delay)"/>
     </node>

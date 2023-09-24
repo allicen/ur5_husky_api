@@ -43,7 +43,7 @@
 
 ```
 cd /home/administrator/rubleva/ur5_husky_api
-catkin_make
+catkin build
 source devel/setup.bash
 roslaunch ur5_run ur5_run.launch
 ```
@@ -55,7 +55,7 @@ roslaunch ur5_run ur5_run.launch
 1) На роботе запустить publisher:
 ```
 cd /home/administrator/rubleva/ur5_husky_api
-catkin_make
+catkin build
 source devel/setup.bash
 roslaunch camera_pub camera.launch
 ```
@@ -69,7 +69,7 @@ roslaunch camera_pub camera.launch
 
 ```
 cd /home/administrator/rubleva/ur5_husky_api
-catkin_make
+catkin build
 source devel/setup.bash
 roslaunch gripper_move gripper.launch
 ```
@@ -83,7 +83,11 @@ roslaunch gripper_move gripper.launch
 
 ```
 cd /home/administrator/rubleva/ur5_husky_api
-catkin_make
+catkin_make --cmake-args \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DPYTHON_EXECUTABLE=/usr/bin/python3 \
+            -DPYTHON_INCLUDE_DIR=/usr/include/python3.8 \
+            -DPYTHON_LIBRARY=/usr/lib/x86_64-linux-gnu/libpython3.8.so
 source devel/setup.bash
 roslaunch camera_pub detect_obj_in_gripper.launch
 ```
