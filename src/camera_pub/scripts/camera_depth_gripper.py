@@ -196,17 +196,16 @@ class Camera():
         time_prev = time_now
 
         while not rospy.is_shutdown():
-
             # set delay for get image from camera
             now = rospy.Time.now()
             delta_time = now - time_prev
-            
+
             if delta_time.secs >= self.delay:
                 self.can_get_image_gripper_depth = True
                 time_prev = now
 
             if self.ImageGripperDepth is not None:
-                img = self.process_depth_image(self.ImageGripperDepth)
+                self.process_depth_image(self.ImageGripperDepth)
             self.rate.sleep()
 
     def shutdown(self):
