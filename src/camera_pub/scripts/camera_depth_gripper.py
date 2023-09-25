@@ -74,11 +74,8 @@ class Camera():
 
     def process_depth_image(self, cv_image):
         depth_array = np.array(cv_image, dtype=np.float32)
-        ones = np.ones(depth_array.shape, dtype=np.float32)
-
-        np.copyto(ones, depth_array, where=depth_array == 0)
-        
-        bl = cv2.medianBlur(ones, 5)
+       
+        bl = cv2.medianBlur(depth_array, 5)
 
         hsv_min = np.array((0, 0, 0), np.uint8)
         hsv_max = np.array((0, 0, 0), np.uint8)
@@ -92,11 +89,31 @@ class Camera():
         kernel = cv2.getStructuringElement(cv2.MORPH_RECT,(5,5))
         dilated = cv2.dilate(thresh, kernel)
 
-        contours, _ = cv2.findContours(dilated.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        contours_prev, _ = cv2.findContours(dilated.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+        # find broken contours
+        for cnt in contours_prev:
+            left_point, right_point = 10000, -1
+            for ci in cnt:
+                if ci[0][1] == self.height-1:
+                    if ci[0][0] < left_point:
+                        left_point = ci[0][0]
+                    if ci[0][0] > right_point:
+                        right_point = ci[0][0]
+            
+            if left_point != 10000 and right_point != -1:
+                # fix broken contours
+                cv2.line(img, (left_point-1, self.image_border_start[1]), (right_point+1, self.image_border_start[1]), (0,0,0), 10)
+
+        # re-find contours
+        thresh = cv2.inRange(img, hsv_min, hsv_max)
+        dilated2 = cv2.dilate(thresh, kernel)
+        contours, _ = cv2.findContours(dilated2.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
         cntrs_find = []
         cntrs_white_masked = []
 
+        # apply masks to unnecessary contours
         for cnt in contours:
             if len(cnt) > 1:
                 add_mask = True
@@ -109,19 +126,24 @@ class Camera():
                                 break
                 if add_mask:
                     cntrs_white_masked.append(cnt)
-                    
-        cv2.fillPoly(img, contours, [0,0,0])            
-        cv2.fillPoly(img, cntrs_white_masked, [255,255,255])
+
+        # add masks            
+        img = cv2.fillPoly(img, contours, [0,0,0])            
+        img = cv2.fillPoly(img, cntrs_white_masked, [255,255,255])
 
         cntrs_find = sorted(cntrs_find, key=cv2.contourArea, reverse=True)
 
         for i, cnt in enumerate(cntrs_find):
-            if i == 0:
+            if i == 0: # the longest contour
+                # draw contour 
                 cv2.drawContours(img, cnt, -1, (0,0,255), 3)
+
+                # draw lines through points
                 L1 = self.line(self.image_border_start, self.image_border_end)
                 L2 = self.line(self.gripper_border_start, self.gripper_border_end)
                 L3 = self.line(self.gripper_close_start, self.gripper_close_end)
 
+                # find the intersection points of straight lines
                 R1 = self.intersection(L1, L3)
                 R2 = self.intersection(L2, L3)
 
@@ -129,9 +151,11 @@ class Camera():
                 msg.data = 'ready'
 
                 if R1 and R2:
+                    # check if the point is inside the contour
                     dist1 = cv2.pointPolygonTest(cnt, R1, True)
                     dist2 = cv2.pointPolygonTest(cnt, R2, True)
 
+                    # if there are both points inside the contour, then the gripper is busy
                     if dist1 > 0 and dist2 > 0:
                         self.gripper_busy = True
                         msg.data = 'busy'
@@ -140,10 +164,12 @@ class Camera():
                 else:
                     msg.data = 'ready'
 
+                # send result
                 self.pub_gripper_state.publish(msg)
 
             else:
-                pass
+                # TODO process the other contours
+                break
         return img
 
 
@@ -170,6 +196,8 @@ class Camera():
         time_prev = time_now
 
         while not rospy.is_shutdown():
+
+            # set delay for get image from camera
             now = rospy.Time.now()
             delta_time = now - time_prev
             
@@ -179,22 +207,6 @@ class Camera():
 
             if self.ImageGripperDepth is not None:
                 img = self.process_depth_image(self.ImageGripperDepth)
-                cv2.line(img, self.image_border_start, self.image_border_end, (0,255,255), self.line_height) 
-                cv2.line(img, self.gripper_border_start, self.gripper_border_end, (255,0,0), self.line_height)
-                cv2.line(img, self.gripper_close_start, self.gripper_close_end, (255,0,0), self.line_height)
-
-                font = cv2.FONT_HERSHEY_SIMPLEX
-                bottomLeftCornerOfText = (10, self.gripper_border_start[1]-10)
-                fontScale = 1
-                fontColor = (255,0,0)
-                thickness = 1
-                lineType = 5
-                cv2.putText(img,'Gripper Line', bottomLeftCornerOfText, font, fontScale, fontColor, thickness, lineType)
-
-                self.rate.sleep()
-                
-                # cv2.imshow("depth", img)
-                # cv2.waitKey(3)
             self.rate.sleep()
 
     def shutdown(self):
