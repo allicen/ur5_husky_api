@@ -106,14 +106,14 @@ roslaunch camera_pub detect_obj_in_gripper.launch
 Вызвать сервисы для управления гриппером или для управления манипулятором
 
 а) Управление гриппером
-<pre><code>cd /rubleva/ur5_husky_api
+<pre><code>cd ~/rubleva/ur5_husky_api
 source devel/setup.bash
 rostopic pub /gripper_angle gripper_move/GripperAngle "angle: 0.0" --once</code></pre>
 
 Минимальное положение гриппера - 0, максимальное - 0.085
 
 б) Управление манипулятором
-<pre><code>cd /rubleva/ur5_husky_api
+<pre><code>cd ~/rubleva/ur5_husky_api
 source devel/setup.bash
 rostopic pub move_robot_delay_gripper ur5_info/MoveUR5WithGripper "{positions: [position:[]], delay: [], gripperAngle: 0.0}" --once</code></pre>
 
@@ -178,3 +178,48 @@ rostopic pub move_robot_delay_gripper ur5_info/MoveUR5WithGripper "{positions: [
 ================= 24
 rosbag record  /tf /tf_static /realsense_gripper/color/camera_info /realsense_gripper/color/image_raw/compressed /realsense_gripper/aligned_depth_to_color/camera_info /realsense_gripper/aligned_depth_to_color/image_raw /zed_node/left/camera_info /zed_node/left/image_rect_color/compressed /zed_node/depth/camera_info /zed_node/depth/depth_registered /velodyne_points /occupancy_grid_map/grid_map /arm/1/joint_states /gripper_angle
 /gripper/1/joint_states /zed_node/right_raw/image_raw_color/compressed /zed_node/left_raw/image_raw_color/compressed /zed_node/right_raw/camera_info /zed_node/left_raw/camera_info
+
+
+================= 24
+rosbag record  /tf /tf_static /realsense_gripper/color/camera_info /realsense_gripper/color/image_raw/compressed /realsense_gripper/aligned_depth_to_color/camera_info /realsense_gripper/aligned_depth_to_color/image_raw /zed_node/left/camera_info /zed_node/left/image_rect_color/compressed /zed_node/depth/camera_info /zed_node/depth/depth_registered /arm/1/joint_states /gripper_angle /gripper/1/joint_states /zed_node/right_raw/image_raw_color/compressed /zed_node/left_raw/image_raw_color/compressed /zed_node/right_raw/camera_info /zed_node/left_raw/camera_info
+
+rostopic pub move_robot_delay_gripper ur5_info/MoveUR5WithGripper "{positions: [position:[]], delay: [0], gripperAngle: 0.085}" --once
+rostopic pub move_robot_delay_gripper ur5_info/MoveUR5WithGripper "{positions: [position:[1.5958999395370483, -2.8721306959735315, 2.677290439605713, -2.9610708395587366, -1.4761622587787073, 0.00028762139845639467]], delay: [0], gripperAngle: 0.085}" --once
+
+
+////////////////// 11.10
+
+rosbag record /aruco_localizator_v2/objects \
+            /command_robotiq_action/feedback \
+            /command_robotiq_action/result \
+            /command_robotiq_action/status \
+            /current_pose \
+            /husky_velocity_controller/odom \
+            /object_pose \
+            /pick_up_object/cancel \
+            /pick_up_object/goal \
+            /put_object/cancel \
+            /put_object/goal \
+            /segmentation_labels \
+            /tf \
+            /tf_static \
+            /state/arm/0/arm_state \
+            /joint_states \
+            /tracked_objects_3d
+
+Subscriptions:                        
+ * /aruco_localizator_v2/objects [unknown type]
+ * /command_robotiq_action/feedback [robotiq_2f_gripper_msgs/CommandRobotiqGripperActionFeedback]
+ * /command_robotiq_action/result [robotiq_2f_gripper_msgs/CommandRobotiqGripperActionResult]
+ * /command_robotiq_action/status [actionlib_msgs/GoalStatusArray]
+ * /current_pose [unknown type]    
+ * /husky_velocity_controller/odom [nav_msgs/Odometry]     
+ * /object_pose [husky_tidy_bot_cv/ObjectPose]              
+ * /pick_up_object/cancel [actionlib_msgs/GoalID]
+ * /pick_up_object/goal [communication_msgs/PickupObjectActionGoal]
+ * /put_object/cancel [actionlib_msgs/GoalID]               
+ * /put_object/goal [communication_msgs/PutObjectActionGoal]
+ * /segmentation_labels [husky_tidy_bot_cv/Categories]
+ * /tf [tf2_msgs/TFMessage] 
+ * /tf_static [tf2_msgs/TFMessage]                          
+ * /tracked_objects_3d [husky_tidy_bot_cv/Objects3d]  

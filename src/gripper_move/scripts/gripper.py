@@ -87,12 +87,25 @@ def handle_gripper_move_angle_sub(req):
     gripper.move()
 
 
+def get_gripper_state(req):
+    if len(req.position) != 1:
+        return
+    
+    gripper_state_pub = rospy.Publisher('/gripper_state_robot', GripperInfo, queue_size=10)
+    msg = GripperInfo()
+    msg.id = 0
+    msg.name = "robotiq"
+    msg.angle = req.position[0]
+    gripper_state_pub.publish(msg)
+
+
 if __name__ == '__main__':
     rospy.init_node("gripper_controller")
     s = rospy.Service('gripper_move_robot', GripperMoveRobot, handle_gripper_move_srv)
     state = rospy.Service('gripper_state_robot', GetGripperState, handle_gripper_state_srv)
     rospy.Subscriber("gripper_state", GripperInfo, handle_gripper_move_sub) # get message from UI
     rospy.Subscriber("gripper_angle", GripperAngle, handle_gripper_move_angle_sub)
+    rospy.Subscriber("/joint_states", JointState, get_gripper_state)
 
     gripper_state = Gripper()
     gripper_state.spin()
